@@ -1,0 +1,58 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+<body>
+<div class="flex flex-col space-y-8 h-full w-full justify-center items-center">
+    <button
+            id="btn-print-receipt"
+            class="px-6 py-2 text-2xl text-white rounded-lg bg-blue-500 mt-24">Print Receipt</button>
+</div>
+<div
+        id="app-info"
+        class="w-full h-6 absolute bottom-2 text-center">0.0.0</div>
+<div
+        id="system-message"
+        class="w-full h-6 absolute bottom-2 text-center"></div>
+<script type="text/javascript">
+    onload = () => {
+        document.getElementById('btn-print-receipt').addEventListener('click', () => {
+            window.isapi.print('73055B86-314B-4009-982E-6D22F872D5EF')
+        });
+
+        window.isapi.onPrintersList((printers) => {
+            console.info(printers);
+        });
+
+        window.isapi.onPrintCompleted(() => {
+            document.getElementById('system-message').innerText = 'Printing Completed!'
+        });
+
+        window.isapi.onPrintFailed((error) => {
+            const message = error?.message ?? 'Unknown Error';
+            document.getElementById('system-message').innerText = 'Printing Failed: ' + message;
+        });
+
+        window.isapi.info((data) => {
+
+            console.debug(data);
+
+            let text = ['App Version: ' + data.app.version];
+
+            if (data.printers.default) {
+                text.push('Printer: ' + data.printers.default);
+            }
+            if (data.app.path) {
+                text.push('Path: ' + data.app.path);
+            }
+
+            document.getElementById('app-info').innerText = text.join(' | ')
+        });
+    };
+
+</script>
+</body>
+</html>

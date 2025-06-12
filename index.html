@@ -9,13 +9,16 @@
 <div class="flex flex-col space-y-8 h-full w-full justify-center items-center">
     <button
             id="btn-print-receipt"
-            class="px-6 py-2 text-2xl text-white rounded-lg bg-blue-500 mt-24">Print Receipt</button>
+            class="px-6 py-2 text-2xl text-white rounded-lg bg-blue-500 mt-24 cursor-pointer">Print Receipt</button>
 </div>
 <div
         id="app-info"
-        class="w-full h-6 absolute bottom-2 text-center">0.0.0</div>
+        class="w-full h-6 absolute bottom-6 text-center">0.0.0</div>
 <div
         id="system-message"
+        class="w-full h-6 absolute bottom-4 text-center"></div>
+<div
+        id="printing-status"
         class="w-full h-6 absolute bottom-2 text-center"></div>
 <script type="text/javascript">
     onload = () => {
@@ -28,25 +31,19 @@
         });
 
         window.isapi.onPrintCompleted(() => {
-            document.getElementById('system-message').innerText = 'Printing Completed!'
+            document.getElementById('printing-status').innerText = 'Printing Completed!'
         });
 
         window.isapi.onPrintFailed((error) => {
             const message = error?.message ?? 'Unknown Error';
-            document.getElementById('system-message').innerText = 'Printing Failed: ' + message;
+            document.getElementById('printing-status').innerText = 'Printing Failed: ' + message;
         });
 
         window.isapi.info((data) => {
-
-            console.debug(data);
-
             let text = ['App Version: ' + data.app.version];
 
             if (data.printers.default) {
                 text.push('Printer: ' + data.printers.default);
-            }
-            if (data.app.path) {
-                text.push('Path: ' + data.app.path);
             }
 
             document.getElementById('app-info').innerText = text.join(' | ')

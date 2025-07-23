@@ -1,55 +1,67 @@
-<!doctype html>
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <title>Centered Button Page</title>
+
+    <!-- Tailwind CSS v4 (via CDN) -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,typography,aspect-ratio,line-clamp"></script>
+
+    <!-- Flowbite CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.css" rel="stylesheet"/>
 </head>
-<body>
-<div class="flex flex-col space-y-8 h-full w-full justify-center items-center">
-    <button
-            id="btn-print-receipt"
-            class="px-6 py-2 text-2xl text-white rounded-lg bg-blue-500 mt-24 cursor-pointer">Print Receipt</button>
-</div>
-<div
-        id="app-info"
-        class="w-full h-6 absolute bottom-6 text-center">0.0.0</div>
-<div
-        id="system-message"
-        class="w-full h-6 absolute bottom-4 text-center"></div>
-<div
-        id="printing-status"
-        class="w-full h-6 absolute bottom-2 text-center"></div>
+<body class="min-h-screen bg-gray-100 flex items-center justify-center p-4">
+
+<!-- Centered Button -->
+<button
+        id="print-document"
+        type="button"
+        class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-lg px-6 py-3 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 transition duration-300">
+    Print
+</button>
+
+<!-- Flowbite Script -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.js"></script>
 <script type="text/javascript">
-    onload = () => {
-        document.getElementById('btn-print-receipt').addEventListener('click', () => {
-            window.isapi.print('73055B86-314B-4009-982E-6D22F872D5EF')
-        });
+    const pingServer = async () => {
+        const range = {
+            from: 11800,
+            to: 11850,
+        }
 
-        window.isapi.onPrintersList((printers) => {
-            console.info(printers);
-        });
+        const ports = Array.from({length: range.to - range.from + 1}, (v, i) => i + range.from);
+        let port = undefined;
+        for (let candidate of ports) {
+            try {
+                const res = await fetch('http://localhost:' + candidate + '/ping');
+                if (!res.ok) {
+                    continue
+                }
 
-        window.isapi.onPrintCompleted(() => {
-            document.getElementById('printing-status').innerText = 'Printing Completed!'
-        });
-
-        window.isapi.onPrintFailed((error) => {
-            const message = error?.message ?? 'Unknown Error';
-            document.getElementById('printing-status').innerText = 'Printing Failed: ' + message;
-        });
-
-        window.isapi.info((data) => {
-            let text = ['App Version: ' + data.app.version];
-
-            if (data.printers.default) {
-                text.push('Printer: ' + data.printers.default);
+                const info = await res.json();
+                if (info.port === candidate) {
+                    port = candidate;
+                    window.isapi = {
+                        port: port,
+                    };
+                    break;
+                }
+            } catch (e) {
+                // NOOP
             }
+        }
 
-            document.getElementById('app-info').innerText = text.join(' | ')
-        });
-    };
 
+        console.log('GOT SERVER AT PORT ' + port);
+    }
+
+    window.addEventListener('DOMContentLoaded', pingServer);
+
+    document.getElementById('print-document').addEventListener('click', async function (event) {
+        alert('Printing...');
+        fetch('http://localhost:' + window.isapi.port + '/print?doc=73055B86-314B-4009-982E-6D22F872D5EF');
+    });
 </script>
 </body>
 </html>

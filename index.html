@@ -24,6 +24,10 @@
 <!-- Flowbite Script -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.js"></script>
 <script type="text/javascript">
+    const getInfo = async (port) => {
+        const res = await fetch('http://localhost:' + port + '/ping', { signal: AbortSignal.timeout(5000) });
+        return await res.json();
+    }
     const pingServer = async () => {
         const range = {
             from: 49800,
@@ -38,7 +42,7 @@
 
         for (let candidate of ports) {
             try {
-                const res = await fetch('http://localhost:' + candidate + '/ping', { signal: AbortSignal.timeout(2000) });
+                const res = await fetch('http://localhost:' + candidate + '/ping', { signal: AbortSignal.timeout(500) });
                 if (!res.ok) {
                     continue
                 }
@@ -62,7 +66,17 @@
 
     document.getElementById('print-document').addEventListener('click', async function (event) {
         alert('Printing...');
-        fetch('http://localhost:' + window.isapi.port + '/print?doc=73055B86-314B-4009-982E-6D22F872D5EF');
+        getInfo().then((res) => {
+            console.log(res);
+        }).catch((err) => {
+            console.log(err);
+        });
+
+        fetch('http://localhost:' + window.isapi.port + '/print?doc=73055B86-314B-4009-982E-6D22F872D5EF').then((res) => {
+            console.log(res);
+        }).catch((err) => {
+            console.log(err);
+        });
     });
 </script>
 </body>

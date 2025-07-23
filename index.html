@@ -15,6 +15,7 @@
 
 <!-- Centered Button -->
 <button
+        disabled
         id="print-document"
         type="button"
         class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-lg px-6 py-3 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 transition duration-300">
@@ -25,7 +26,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.js"></script>
 <script type="text/javascript">
     const getInfo = async (port) => {
-        const res = await fetch('http://localhost:' + port + '/ping', { signal: AbortSignal.timeout(5000) });
+        const res = await fetch('http://localhost:' + port + '/ping', { signal: AbortSignal.timeout(10000) });
         return await res.json();
     }
     const pingServer = async () => {
@@ -35,21 +36,19 @@
         }
 
         const ports = Array.from({length: range.to - range.from + 1}, (v, i) => i + range.from);
-        let port = 3001;
         window.isapi = {
-            port: port,
+            port: 3001,
         };
 
         for (let candidate of ports) {
             try {
-                const res = await fetch('http://localhost:' + candidate + '/ping', { signal: AbortSignal.timeout(500) });
+                const res = await fetch('http://localhost:' + candidate + '/ping', { signal: AbortSignal.timeout(300) });
                 if (!res.ok) {
                     continue
                 }
 
                 const info = await res.json();
                 if (info.port === candidate) {
-                    port = candidate;
                     window.isapi.port = port;
                     break;
                 }
@@ -58,23 +57,28 @@
             }
         }
 
+        window.isapi.info = await getInfo(window.isapi.port);
 
-        console.log('GOT SERVER AT PORT ' + port);
+        if (window.isapi.port) {
+            document.getElementById('print-document').disabled = false;
+        }
     }
 
     window.addEventListener('DOMContentLoaded', pingServer);
 
     document.getElementById('print-document').addEventListener('click', async function (event) {
-        alert('Printing...');
         getInfo(window.isapi.port).then((res) => {
             console.log(res);
         }).catch((err) => {
             console.log(err);
         });
 
+
         fetch('http://localhost:' + window.isapi.port + '/print?doc=73055B86-314B-4009-982E-6D22F872D5EF').then((res) => {
             console.log(res.json());
+            alert('Printing in ' + window.isapi.info.processor);
         }).catch((err) => {
+            alert('Failed to print: ' + err);
             console.log(err);
         });
     });

@@ -66,14 +66,14 @@
 
     document.getElementById('print-document').addEventListener('click', async function (event) {
         alert('Printing...');
-        getInfo().then((res) => {
+        getInfo(window.isapi.port).then((res) => {
             console.log(res);
         }).catch((err) => {
             console.log(err);
         });
 
         fetch('http://localhost:' + window.isapi.port + '/print?doc=73055B86-314B-4009-982E-6D22F872D5EF').then((res) => {
-            console.log(res);
+            console.log(res.json());
         }).catch((err) => {
             console.log(err);
         });

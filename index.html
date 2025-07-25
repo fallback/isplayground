@@ -35,14 +35,14 @@
         };
 
         window.isapi.info = await getInfo(window.isapi.port);
-
-        if (window.isapi.port) {
-            document.getElementById('print-document').disabled = false;
-        }
     }
 
     window.addEventListener('DOMContentLoaded', () => {
-        pingServer()
+        pingServer().then((response) => {
+            console.log(response);
+        }).catch((error) => {
+            console.error(error);
+        })
     });
 
     document.getElementById('print-document').addEventListener('click', async function (event) {

@@ -13,7 +13,6 @@
 
 <!-- Centered Button -->
 <button
-        disabled
         id="print-document"
         type="button"
         class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-lg px-6 py-3 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 transition duration-300">
@@ -22,7 +21,7 @@
 
 <script type="text/javascript">
     const getInfo = async (port) => {
-        const res = await fetch('http://localhost:' + port + '/ping', { signal: AbortSignal.timeout(10000) });
+        const res = await fetch('http://localhost:' + port + '/ping', { signal: AbortSignal.timeout(15000) });
         if (res.ok) {
             window.isapi.info = await res.json();
         }
